@@ -1,8 +1,0 @@
-{
-  "name": "@porsche-design-system/prettier-config",
-  "version": "1.0.0",
-  "description": "Porsche Design System Prettier config",
-  "main": "index.json",
-  "scope": "@porsche-design-system",
-  "author": "Dr. Ing. h.c. F. Porsche AG"
-}
