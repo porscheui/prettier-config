@@ -27,6 +27,5 @@ Requires that [Prettier](https://prettier.io) is already set up.
 module.exports = {
   // ...
   ...require('@porsche-design-system/prettier-config')
-  // ...
 };
 ```
