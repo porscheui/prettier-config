@@ -29,3 +29,7 @@ module.exports = {
   ...require('@porsche-design-system/prettier-config')
 };
 ```
+
+## License
+
+- MIT (see [LICENSE](./LICENSE))
