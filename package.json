@@ -1,9 +1,23 @@
 {
   "name": "@porsche-design-system/prettier-config",
   "version": "1.0.0",
-  "description": "Porsche Design System Prettier config",
+  "description": "A globally standardized Prettier configuration that can be used with different projects.",
+  "keywords": [
+    "prettier"
+  ],
   "main": "index.json",
   "scope": "@porsche-design-system",
   "author": "Dr. Ing. h.c. F. Porsche AG",
-  "license": "SEE LICENSE IN https://designsystem.porsche.com/latest/license"
+  "license": "MIT",
+  "homepage": "https://designsystem.porsche.com",
+  "bugs": "https://github.com/porscheui/prettier-config/issues",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "index.json"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/porscheui/prettier-config.git"
+  }
 }
