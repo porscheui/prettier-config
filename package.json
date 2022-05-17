@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A globally standardized Prettier configuration that can be used with different projects.",
   "keywords": [
+    "porsche",
     "prettier"
   ],
   "main": "index.json",
