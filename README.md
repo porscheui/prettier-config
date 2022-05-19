@@ -32,4 +32,4 @@ module.exports = {
 
 ## License
 
-- MIT (see [LICENSE](./LICENSE))
+- MIT
