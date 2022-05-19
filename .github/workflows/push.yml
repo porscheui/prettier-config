@@ -1,0 +1,85 @@
+on:
+  push:
+    branches:
+      - master
+name: 'Porsche Design System - Prettier Config'
+jobs:
+  release-prettier-config:
+    name: 'Release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v3
+      - name: 'Publish npm package'
+        run: |
+          PACKAGE_LOCATION="./"
+          PACKAGE_JSON="${PACKAGE_LOCATION}/package.json"
+          PACKAGE_NAME=$(grep name "${PACKAGE_JSON}" | head -1 | awk -F= "{ print ${2} }" | sed 's/[:,\",]//g;s/name//' | tr -d '[[:space:]]')
+          PACKAGE_VERSION=$(grep version "${PACKAGE_JSON}" | head -1 | awk -F= "{ print ${2} }" | sed 's/[:,\",]//g;s/version//' | tr -d '[[:space:]]')
+          GIT_TAG_NAME="v${PACKAGE_VERSION}"
+
+          cleanup_npm_credentials() {
+            local exit_code=$?
+            echo "task: [$(date)] \"cleanup_npm_credentials\""
+            rm "./.npmrc"
+            exit $exit_code
+          }
+
+          setup_npm_credentials() {
+            echo "task: [$(date)] \"setup_npm_credentials\""
+            echo "//registry.npmjs.org/:_authToken=${NPMJS_REGISTRY_TOKEN}" >> "./.npmrc"
+          }
+
+          trap cleanup_npm_credentials EXIT
+          setup_npm_credentials
+
+          publish_npm() {
+            echo "task: [$(date)] \"publish_npm\" (${PACKAGE_LOCATION})"
+
+            result=$(yarn publish --non-interactive --registry=https://registry.npmjs.org/ --access public "${PACKAGE_LOCATION}")
+
+            if [[ ${result} == *"Done"* ]]; then
+              return 0 # true
+            else
+              return 1 # false
+            fi
+          }
+
+          is_version_published() {
+            echo "task: [$(date)] \"is_version_published\" ${PACKAGE_NAME}@${PACKAGE_VERSION}"
+            http_status_code="$(curl -s -o /dev/null -w "%{http_code}" "https://registry.npmjs.org/${PACKAGE_NAME}/${PACKAGE_VERSION}")"
+
+            if [[ ${http_status_code} == 200 ]]; then
+              return 0 # true
+            else
+              return 1 # false
+            fi
+          }
+
+          add_git_tag() {
+            echo "task: [$(date)] \"add_git_tag\" ${GIT_TAG_NAME}, ${GITHUB_SHA}"
+            curl -s -X POST "https://api.github.com/repos/porscheui/prettier-config/git/refs" \
+              -H "Authorization: token ${GITHUB_TOKEN}" \
+              -d @- <<EOF
+          {
+            "ref": "refs/tags/${GIT_TAG_NAME}",
+            "sha": "${GITHUB_SHA}"
+          }
+          EOF
+          }
+
+          if ! is_version_published; then
+            if publish_npm; then
+              add_git_tag
+              echo "Version \"${PACKAGE_VERSION}\" of \"${PACKAGE_NAME}\" published 🎉"
+            else
+              echo "Publishing version \"${PACKAGE_VERSION}\" of \"${PACKAGE_NAME}\" failed 😢"
+              exit 1
+            fi
+          else
+            echo "Version \"${PACKAGE_VERSION}\" of \"${PACKAGE_NAME}\" is already published 🤷‍♂️"
+          fi
+        shell: bash
+        env:
+          NPMJS_REGISTRY_TOKEN: ${{ secrets.NPMJS_REGISTRY_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
